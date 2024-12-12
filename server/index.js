@@ -1,47 +1,55 @@
 import express from 'express';
 import "dotenv/config";
 import { db } from "./config/db.js";
-import userRouter from './routes/user.route.js';
+import userRouter from './routes/user.route.js'; 
 import authRouter from './routes/auth.route.js';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-const app = express();
-const PORT = process.env.PORT || 8000;
 
-// Konfigurasi middleware CORS
+
+const app = express();
+const PORT = process.env.PORT || 4000;  
+
 app.use(
     cors({
-        origin: process.env.CLIENT_URL, // URL klien yang diperbolehkan
-        credentials: true,             // Izinkan pengiriman cookie lintas domain
+        
+    origin:process.env.CLIENT_URL,
+    credentials:true,
     })
-);
-
-// Middleware untuk menangani JSON
+)
 app.use(express.json());
+app.use(cookieParser());
+app.use('/api/v1/auth',authRouter);
 
-// Middleware untuk logging request
+
+
 app.use((req, res, next) => {
-    console.log(`[${req.method}] ${req.url}`);
+    console.log('[${req.method}] ${req.url}');
     next();
 });
 
-// Rute utama untuk pengecekan server
+
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "hello world" });
+    res.status(200).json({
+        message: "hello world"
+    });
 });
 
-// Rute untuk User API
-app.use('/api/v1/users', userRouter);
 
-// rute untuk auth
-app.use('./api/v1/auth', authRouter)
+app.use('/api/v1/users', (req, res, next) => {
+    console.log('[DEBUG] Request masuk ke /api/v1/users');
+    next();
+}, userRouter);
 
-// Menangani rute yang tidak ditemukan
+
 app.use("*", (req, res) => {
-    res.status(404).json({ message: "not found" });
+    res.status(404).json({
+        message: "not found"
+    });
 });
 
-// Memulai server
+
 app.listen(PORT, () => {
-    console.log(`Server started, listening on port ${PORT}`);
+    console.log('Server started, listening on port ${PORT}');
 });

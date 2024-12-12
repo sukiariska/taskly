@@ -2,6 +2,8 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { FormControl, FormErrorMessage } from '@chakra-ui/form-control';
 import { Input, Button, Text, Box, Flex, Heading, Stack } from '@chakra-ui/react';
+import { API_BASE_URL } from '../util';
+import toast from 'react-hot-toast';
 
 export default function SignUp() {
     // Menggunakan react-hook-form untuk form handling
@@ -13,24 +15,41 @@ export default function SignUp() {
 
     // Fungsi untuk menangani submit form
     const doSubmit = async (values) => {
-        alert('Sign Up Successful. You are now logged in');
+        try {
+            const res = await fetch('${API_BASE_URL}'/auth/signup, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                toast.success('Sign up successful! You are now registered.');
+            } else {
+                toast.error(data.message || 'Sign up failed. Please try again.');
+            }
+        } catch (error) {
+            toast.error('Something went wrong. Please check your connection.');
+        }
     };
 
     return (
-        <Box p='3' maxW='lg' mx='auto'>
-            <Heading as='h1' textAlign='center' fontSize='3xl' fontWeight='semibold' my='7'>
+        <Box p="3" maxW="lg" mx="auto">
+            <Heading as="h1" textAlign="center" fontSize="3xl" fontWeight="semibold" my="7">
                 Create an Account
             </Heading>
 
             {/* Formulir Sign Up */}
             <form onSubmit={handleSubmit(doSubmit)}>
-                <Stack gap='4'>
+                <Stack gap="4">
                     {/* Form control untuk Username */}
                     <FormControl isInvalid={errors.username}>
                         <Input
-                            id='username'
-                            type='text'
-                            placeholder='Username'
+                            id="username"
+                            type="text"
+                            placeholder="Username"
                             {...register('username', { required: 'Username is required' })}
                         />
                         <FormErrorMessage>
@@ -41,9 +60,9 @@ export default function SignUp() {
                     {/* Form control untuk Email */}
                     <FormControl isInvalid={errors.email}>
                         <Input
-                            id='email'
-                            type='email'
-                            placeholder='Email'
+                            id="email"
+                            type="email"
+                            placeholder="Email"
                             {...register('email', { required: 'Email is required' })}
                         />
                         <FormErrorMessage>
@@ -54,9 +73,9 @@ export default function SignUp() {
                     {/* Form control untuk Password */}
                     <FormControl isInvalid={errors.password}>
                         <Input
-                            id='password'
-                            type='password'
-                            placeholder='Password'
+                            id="password"
+                            type="password"
+                            placeholder="Password"
                             {...register('password', { required: 'Password is required' })}
                         />
                         <FormErrorMessage>
@@ -66,10 +85,10 @@ export default function SignUp() {
 
                     {/* Tombol submit dengan loading state */}
                     <Button
-                        type='submit'
+                        type="submit"
                         isLoading={isSubmitting}
-                        colorScheme='teal'
-                        textTransform='uppercase'
+                        colorScheme="teal"
+                        textTransform="uppercase"
                     >
                         Sign Up
                     </Button>
@@ -77,10 +96,10 @@ export default function SignUp() {
             </form>
 
             {/* Tautan untuk Sign In */}
-            <Flex gap='2' mt='5'>
+            <Flex gap="2" mt="5">
                 <Text>Have an Account?</Text>
-                <Link to={'/signin'}>
-                    <Text as='span' color='blue.400'>
+                <Link to="/signin">
+                    <Text as="span" color="blue.400">
                         Sign In
                     </Text>
                 </Link>
